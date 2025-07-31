@@ -2,25 +2,25 @@
  * Configurable payment status handler for checking payment and subscription status
  */
 
-import { getDodoClient } from '@/lib/dodo/dodo.config';
-import { mapPaymentStatus } from '@/lib/dodo/payment-status';
+import { dodo as dodoClient } from "@/lib/dodo/dodo.config";
+import { mapPaymentStatus } from "@/lib/dodo/payment-status";
 
 export function createPaymentStatusHandler(config = {}) {
   const {
     // Status mapping configuration
     statusMapping = mapPaymentStatus,
-    
+
     // Customization hooks
     onStatusRetrieved = async (status, requestData) => status,
     onError = async (error, requestData) => null,
-    
+
     // Logging
     logging = true,
   } = config;
 
   return async function paymentStatusHandler(request) {
     const requestId = Date.now().toString();
-    
+
     try {
       if (logging) {
         console.log(`[PaymentStatus ${requestId}] Checking payment status`);
@@ -30,29 +30,36 @@ export function createPaymentStatusHandler(config = {}) {
       const { paymentId, subscriptionId } = body;
 
       if (!paymentId && !subscriptionId) {
-        const error = new Error('Missing paymentId or subscriptionId');
-        const customResponse = await onError(error, { paymentId, subscriptionId });
-        
+        const error = new Error("Missing paymentId or subscriptionId");
+        const customResponse = await onError(error, {
+          paymentId,
+          subscriptionId,
+        });
+
         if (customResponse) return customResponse;
-        
+
         return new Response(
-          JSON.stringify({ error: 'Payment ID or Subscription ID is required' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
+          JSON.stringify({
+            error: "Payment ID or Subscription ID is required",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
 
       if (logging) {
-        console.log(`[PaymentStatus ${requestId}] Looking up:`, { paymentId, subscriptionId });
+        console.log(`[PaymentStatus ${requestId}] Looking up:`, {
+          paymentId,
+          subscriptionId,
+        });
       }
 
-      const dodoClient = getDodoClient();
       let result;
 
       // Check payment status
       if (paymentId) {
         const payment = await dodoClient.payments.get(paymentId);
         result = {
-          type: 'payment',
+          type: "payment",
           id: paymentId,
           status: statusMapping(payment.status),
           amount: payment.total_amount,
@@ -62,12 +69,12 @@ export function createPaymentStatusHandler(config = {}) {
           raw: payment,
         };
       }
-      
+
       // Check subscription status
       if (subscriptionId) {
         const subscription = await dodoClient.subscriptions.get(subscriptionId);
         result = {
-          type: 'subscription',
+          type: "subscription",
           id: subscriptionId,
           status: statusMapping(subscription.status),
           amount: subscription.recurring_pre_tax_amount,
@@ -94,25 +101,30 @@ export function createPaymentStatusHandler(config = {}) {
         });
       }
 
-      return new Response(
-        JSON.stringify(finalResult),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-
+      return new Response(JSON.stringify(finalResult), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       if (logging) {
-        console.error(`[PaymentStatus ${requestId}] Status check error:`, error);
+        console.error(
+          `[PaymentStatus ${requestId}] Status check error:`,
+          error
+        );
       }
-      
-      const customResponse = await onError(error, { paymentId, subscriptionId });
+
+      const customResponse = await onError(error, {
+        paymentId,
+        subscriptionId,
+      });
       if (customResponse) return customResponse;
-      
+
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to retrieve payment status',
-          message: error.message 
+        JSON.stringify({
+          error: "Failed to retrieve payment status",
+          message: error.message,
         }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
   };
@@ -125,18 +137,18 @@ export function createPaymentEmailHandler(config = {}) {
   const {
     // Privacy settings
     maskEmailInLogs = true,
-    
+
     // Customization hooks
     onEmailRetrieved = async (email, requestData) => ({ email }),
     onError = async (error, requestData) => null,
-    
+
     // Logging
     logging = true,
   } = config;
 
   return async function paymentEmailHandler(request) {
     const requestId = Date.now().toString();
-    
+
     try {
       if (logging) {
         console.log(`[PaymentEmail ${requestId}] Retrieving customer email`);
@@ -146,18 +158,22 @@ export function createPaymentEmailHandler(config = {}) {
       const { paymentId, subscriptionId } = body;
 
       if (!paymentId && !subscriptionId) {
-        const error = new Error('Missing payment_id or subscription_id');
-        const customResponse = await onError(error, { paymentId, subscriptionId });
-        
+        const error = new Error("Missing payment_id or subscription_id");
+        const customResponse = await onError(error, {
+          paymentId,
+          subscriptionId,
+        });
+
         if (customResponse) return customResponse;
-        
+
         return new Response(
-          JSON.stringify({ error: 'Payment ID or Subscription ID is required' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
+          JSON.stringify({
+            error: "Payment ID or Subscription ID is required",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
 
-      const dodoClient = getDodoClient();
       let email;
 
       // Get email from payment
@@ -165,7 +181,7 @@ export function createPaymentEmailHandler(config = {}) {
         const payment = await dodoClient.payments.get(paymentId);
         email = payment.customer?.email;
       }
-      
+
       // Get email from subscription
       if (subscriptionId) {
         const subscription = await dodoClient.subscriptions.get(subscriptionId);
@@ -173,20 +189,27 @@ export function createPaymentEmailHandler(config = {}) {
       }
 
       if (!email) {
-        const error = new Error('Customer email not found');
-        const customResponse = await onError(error, { paymentId, subscriptionId });
-        
+        const error = new Error("Customer email not found");
+        const customResponse = await onError(error, {
+          paymentId,
+          subscriptionId,
+        });
+
         if (customResponse) return customResponse;
-        
+
         return new Response(
-          JSON.stringify({ error: 'Customer email not found' }),
-          { status: 404, headers: { 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: "Customer email not found" }),
+          { status: 404, headers: { "Content-Type": "application/json" } }
         );
       }
 
       if (logging) {
-        const displayEmail = maskEmailInLogs ? email.replace(/(.{2}).*(@.*)/, '$1***$2') : email;
-        console.log(`[PaymentEmail ${requestId}] Email retrieved: ${displayEmail}`);
+        const displayEmail = maskEmailInLogs
+          ? email.replace(/(.{2}).*(@.*)/, "$1***$2")
+          : email;
+        console.log(
+          `[PaymentEmail ${requestId}] Email retrieved: ${displayEmail}`
+        );
       }
 
       // Allow customization of response
@@ -196,26 +219,31 @@ export function createPaymentEmailHandler(config = {}) {
         requestId,
       });
 
-      return new Response(
-        JSON.stringify(result),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       if (logging) {
-        console.error(`[PaymentEmail ${requestId}] Email retrieval error:`, error);
+        console.error(
+          `[PaymentEmail ${requestId}] Email retrieval error:`,
+          error
+        );
       }
-      
-      const customResponse = await onError(error, { paymentId, subscriptionId });
+
+      const customResponse = await onError(error, {
+        paymentId,
+        subscriptionId,
+      });
       if (customResponse) return customResponse;
-      
+
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to retrieve customer email',
-          message: error.message 
+        JSON.stringify({
+          error: "Failed to retrieve customer email",
+          message: error.message,
         }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
   };
-};
+}

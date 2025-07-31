@@ -18,12 +18,10 @@ import { useAuth } from "@/contexts/auth.context";
 import { usePostHog } from "posthog-js/react";
 import FirebaseAuthButtons from "@/components/auth/FirebaseAuthButtons";
 import EmailLinkAuth from "@/components/auth/EmailLinkAuth";
+import Logo from "@/components/Logo";
 
 function LoginContent({ config = {} }) {
   const {
-    // Logo component
-    logoComponent: Logo,
-    
     // Content configuration
     content = {
       title: "Welcome Back",

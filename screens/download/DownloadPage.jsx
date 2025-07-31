@@ -9,12 +9,12 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CheckCircle, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
 
 export default function DownloadPage({ config = {} }) {
   const {
     // Configuration
     apiBaseUrl = '',
-    logoComponent: Logo,
     
     // Analytics configuration
     analytics = {},

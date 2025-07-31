@@ -13,12 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Logo from "@/components/Logo";
 
 export default function LicenseSetPasswordPage({ config = {} }) {
   const {
-    // Logo component
-    logoComponent: Logo,
-    
     // Content configuration
     content = {
       title: "Set Your Password",

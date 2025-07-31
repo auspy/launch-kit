@@ -12,11 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CheckCircle2, XCircle, AlertTriangle, Loader2 } from "lucide-react";
+import Logo from "@/components/Logo";
 
 function PaymentStatusContent({ config = {} }) {
   const {
-    // Logo component
-    logoComponent: Logo,
     
     // Content configuration
     content = {

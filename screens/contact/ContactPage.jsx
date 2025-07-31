@@ -18,16 +18,14 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import Header from "@/components/Header";
+import SiteFooter from "@/components/SiteFooter";
+import PageHeader from "@/components/PageHeader";
 
 export default function ContactPage({ config = {} }) {
   const {
     // Configuration
     apiEndpoint = "/api/contact",
-    
-    // UI components and styling
-    headerComponent: Header,
-    footerComponent: Footer,
-    pageHeaderComponent: PageHeader,
     
     // Content configuration
     content = {},
@@ -230,7 +228,7 @@ export default function ContactPage({ config = {} }) {
         </div>
       </main>
 
-      {Footer && <Footer />}
+      {SiteFooter && <SiteFooter />}
     </div>
   );
 }

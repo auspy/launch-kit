@@ -14,12 +14,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Mail } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function LicenseRecoveryPage({ config = {} }) {
   const {
-    // Logo component
-    logoComponent: Logo,
-    
     // Content configuration
     content = {
       title: "Recover License Key",
