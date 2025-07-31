@@ -475,6 +475,150 @@ export default function Page() {
 }
 ```
 
+### Changelog Page
+```javascript
+// your-new-site/app/changelog/page.js
+import { ChangelogPage } from '@/screens/changelog';
+import { getReleaseData } from '@/lib/changelog';
+import siteConfig from '../../site.config';
+
+export default function Page() {
+  const releases = getReleaseData();
+  
+  const config = {
+    siteConfig,
+    releases,
+    pageHeader: {
+      badge: "Release Notes",
+      title: "What's New in FocusPro?",
+      description: "Keep track of the latest features, improvements, and bug fixes"
+    },
+    showVersionNavigation: true,
+    releaseDetailPath: "/releases"
+  };
+
+  return <ChangelogPage {...config} />;
+}
+```
+
+### Roadmap Page
+```javascript
+// your-new-site/app/roadmap/page.js (or whats-next/page.js)
+import { RoadmapPage } from '@/screens/roadmap';
+import siteConfig from '../../site.config';
+
+export default function Page() {
+  const config = {
+    siteConfig,
+    pageHeader: {
+      badge: "Vision", 
+      title: "What's Next for FocusPro",
+      description: "Enhancing your focus experience, one feature at a time"
+    },
+    progressSection: {
+      title: "Recent Progress",
+      description: "What we've accomplished recently",
+      changelogLink: "/changelog",
+      items: [
+        {
+          icon: "sparkles",
+          title: "Enhanced Analytics",
+          description: "Detailed insights into your productivity patterns with timeline view."
+        },
+        {
+          icon: "shield", 
+          title: "Advanced Blocking",
+          description: "Smarter app and website blocking with context-aware rules."
+        }
+      ]
+    },
+    comingSoonSection: {
+      title: "Coming Soon",
+      items: [
+        {
+          priority: "high",
+          badge: "Main Focus",
+          title: "iOS Companion App",
+          description: "Stay focused on mobile with our upcoming iOS app.",
+          icon: "shield",
+          features: [
+            "Real-time sync with desktop app",
+            "Mobile-optimized focus sessions",
+            "Cross-device analytics"
+          ]
+        }
+      ]
+    },
+    callToAction: {
+      title: "Help Shape FocusPro's Future",
+      description: "Your feedback drives our development. Tell us what features matter most to you.",
+      buttonText: "Share Your Ideas",
+      buttonLink: "/contact"
+    }
+  };
+
+  return <RoadmapPage {...config} />;
+}
+```
+
+### Release Detail Page
+```javascript
+// your-new-site/app/releases/[slug]/page.js
+import { ReleaseDetailPage } from '@/screens/release';
+import { getReleaseBySlug, getReleaseData } from '@/lib/changelog';
+import { notFound } from 'next/navigation';
+import siteConfig from '../../../site.config';
+
+export async function generateStaticParams() {
+  const releases = getReleaseData();
+  return releases.map((release) => ({
+    slug: release.slug,
+  }));
+}
+
+export async function generateMetadata({ params }) {
+  const release = getReleaseBySlug(params.slug);
+  
+  if (!release) {
+    return {
+      title: "Release Not Found - FocusPro",
+      description: "The requested release could not be found."
+    };
+  }
+
+  return {
+    title: `${release.title} - FocusPro Release Notes`,
+    description: release.seoDescription,
+    openGraph: {
+      title: release.title,
+      description: release.seoDescription,
+      type: "article",
+      publishedTime: release.date,
+    }
+  };
+}
+
+export default function Page({ params }) {
+  const release = getReleaseBySlug(params.slug);
+  const allReleases = getReleaseData();
+  
+  if (!release) {
+    notFound();
+  }
+
+  const config = {
+    siteConfig,
+    release,
+    allReleases,
+    backToChangelogPath: "/changelog",
+    pageTitle: "FocusPro Release Notes",
+    pageDescription: "Detailed information about FocusPro releases and updates"
+  };
+
+  return <ReleaseDetailPage {...config} />;
+}
+```
+
 ## Step 5: Override Specific Components
 
 ```javascript

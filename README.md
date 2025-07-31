@@ -180,6 +180,9 @@ launchkit/
   - `download/` - Secure download pages with token verification
   - `contact/` - Contact form pages with validation
   - `license/` - License management dashboard and authentication pages
+  - `changelog/` - Release history pages with version navigation
+  - `roadmap/` - Product roadmap and what's next pages
+  - `release/` - Individual release detail pages
 
 - **`components/`** - Smaller reusable components organized by type
   - `buttons/` - CTA buttons with A/B testing support
